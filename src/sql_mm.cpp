@@ -25,7 +25,7 @@
 #define GAMEBIN "/csgo/bin/linuxsteamrt64/"
 #endif
 
-SH_DECL_HOOK1_void(IGameSystem, ServerGamePostSimulate, SH_NOATTRIB, 0, const EventServerGamePostSimulate_t *);
+SH_DECL_HOOK3_void(IServerGameDLL, GameFrame, SH_NOATTRIB, 0, bool, bool, bool);
 
 SQLPlugin g_SQLPlugin;
 IServerGameDLL *server = nullptr;
@@ -83,9 +83,9 @@ bool SQLPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     g_sqliteClient = new SqClient();
     g_sqlInterface = new SQLInterface();
     // clang-format off
-    serverGamePostSimulateHook = SH_ADD_DVPHOOK(IGameSystem,
-        ServerGamePostSimulate, 
-        (IGameSystem *)serverModule->FindVirtualTable("CEntityDebugGameSystem"),
+    serverGamePostSimulateHook = SH_ADD_HOOK(IServerGameDLL,
+        GameFrame,
+        server,
         SH_MEMBER(this, &SQLPlugin::Hook_ServerGamePostSimulate), 
         true);
     // clang-format on
@@ -94,6 +94,7 @@ bool SQLPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
 bool SQLPlugin::Unload(char *error, size_t maxlen)
 {
+    SH_REMOVE_HOOK_ID(serverGamePostSimulateHook);
     mysql_library_end();
 
     delete serverModule;
@@ -115,7 +116,7 @@ void *SQLPlugin::OnMetamodQuery(const char *iface, int *ret)
     return nullptr;
 }
 
-void SQLPlugin::Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *)
+void SQLPlugin::Hook_ServerGamePostSimulate(bool, bool, bool)
 {
     for (auto connection : g_vecMysqlConnections)
     {

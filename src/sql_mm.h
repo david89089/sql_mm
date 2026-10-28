@@ -22,8 +22,6 @@
 
 #include <ISmmPlugin.h>
 #include <igameevents.h>
-#include <iplayerinfo.h>
-#include <sh_vector.h>
 #include "igamesystem.h"
 
 class SQLPlugin : public ISmmPlugin, public IMetamodListener
@@ -34,7 +32,7 @@ public:
     void *OnMetamodQuery(const char *iface, int *ret);
 
 public: // hooks
-    void Hook_ServerGamePostSimulate(const EventServerGamePostSimulate_t *);
+    void Hook_ServerGamePostSimulate(bool, bool, bool);
 
 public:
     const char *GetAuthor();

@@ -69,7 +69,7 @@ for sdk_target in MMSPlugin.sdk_targets:
       os.path.join(builder.sourcePath, 'vendor', 'mysql', 'lib', 'mysqlclient.lib'),
     ]
 
-  binary.custom = [builder.tools.Protoc(protoc = sdk_target.protoc, sources = [
+  binary.custom = [builder.tools.Protoc(protoc = sdk_target.protoc, sources = [os.path.join(sdk['path'], 'common', 'valveextensions.proto'),
     os.path.join(sdk['path'], 'common', 'network_connection.proto'),
   ])]
 
